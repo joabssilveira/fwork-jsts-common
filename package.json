@@ -4,7 +4,7 @@
     "typescript",
     "utils"
   ],
-  "version": "0.1.0",
+  "version": "0.1.1",
   "license": "MIT",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -24,9 +24,9 @@
     "prepare": "tsdx build",
     "size": "size-limit",
     "analyze": "size-limit --why",
-    "release:major": "changelog -M && git add CHANGELOG.md && git commit -m \"updated CHANGELOG.md\" && npm version major && git push origin && git push origin --tags && npm publish --access public",
-    "release:minor": "changelog -m && git add CHANGELOG.md && git commit -m \"updated CHANGELOG.md\" && npm version minor && git push origin && git push origin --tags && npm publish --access public",
-    "release:patch": "changelog -p && git add CHANGELOG.md && git commit -m \"updated CHANGELOG.md\" && npm version patch && git push origin && git push origin --tags && npm publish --access public"
+    "release:major": "standard-version -M && git add CHANGELOG.md && git commit -m \"updated CHANGELOG.md\" && npm version major && git push origin && git push origin --tags && npm publish --access public",
+    "release:minor": "standard-version -m && git add CHANGELOG.md && git commit -m \"updated CHANGELOG.md\" && npm version minor && git push origin && git push origin --tags && npm publish --access public",
+    "release:patch": "standard-version -p && git add CHANGELOG.md && git commit -m \"updated CHANGELOG.md\" && npm version patch && git push origin && git push origin --tags && npm publish --access public"
   },
   "husky": {
     "hooks": {
@@ -56,6 +56,7 @@
     "@size-limit/preset-small-lib": "^9.0.0",
     "husky": "^8.0.3",
     "size-limit": "^9.0.0",
+    "standard-version": "^9.5.0",
     "tsdx": "^0.14.1",
     "tslib": "^2.6.2",
     "typescript": "^3.9.10"
