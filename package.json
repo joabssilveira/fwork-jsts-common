@@ -54,6 +54,8 @@
   ],
   "devDependencies": {
     "@size-limit/preset-small-lib": "^9.0.0",
+    "@types/crypto-js": "^4.1.1",
+    "@types/uuid": "^9.0.1",
     "husky": "^8.0.3",
     "size-limit": "^9.0.0",
     "standard-version": "^9.5.0",
@@ -62,9 +64,9 @@
     "typescript": "^3.9.10"
   },
   "dependencies": {
-    "@types/crypto-js": "^4.1.1",
-    "@types/uuid": "^9.0.1",
+    "crypto-js": "^4.1.1",
     "axios": "^1.2.1",
-    "moment": "^2.29.4"
+    "moment": "^2.29.4",
+    "uuid": "^9.0.0"
   }
 }
