@@ -2,6 +2,8 @@
 import CryptoJS from "crypto-js";
 import { v4 as uuid } from 'uuid'
 import moment from 'moment'
+import { IApiGetResult, IApiGetResultExt, IApiResult } from "./api";
+import { ApiClientGetOptions, ApiClientUtils, BaseApiClient } from "./apiClient";
 
 export const showDebugLog = false
 
@@ -524,4 +526,9 @@ export class ConsoleLogUtils {
 
     return process
   }
+}
+
+export {
+  IApiGetResultExt, IApiGetResult, IApiResult,
+  BaseApiClient, ApiClientGetOptions, ApiClientUtils,
 }

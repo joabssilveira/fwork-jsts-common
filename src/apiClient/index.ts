@@ -2,7 +2,7 @@ import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosStatic } fro
 import { IApiGetResult, IApiResult } from "../api";
 
 export class ApiClientUtils {
-  static getErrorMessage(error: unknown) {
+  static getErrorMessage(error: any) {
     return typeof error === 'string' ? error :
       (error as AxiosError).response?.data || (error as AxiosError).message || (error as any).data || (error as any).message || (error as any).msg
   }
@@ -27,7 +27,7 @@ export class ApiClientUtils {
       else {
         result.success = false
       }
-    } catch (error: unknown) {
+    } catch (error) {
       result.success = false
       result.msg = ApiClientUtils.getErrorMessage(error)
     }
@@ -78,7 +78,7 @@ export class ApiClientUtils {
       else {
         result.success = false
       }
-    } catch (error: unknown) {
+    } catch (error) {
       result.success = false
       result.msg = ApiClientUtils.getErrorMessage(error)
     }
@@ -106,7 +106,7 @@ export class ApiClientUtils {
       else {
         result.success = false
       }
-    } catch (error: unknown) {
+    } catch (error) {
       result.success = false
       result.msg = ApiClientUtils.getErrorMessage(error)
     }
@@ -133,13 +133,27 @@ export class ApiClientUtils {
       else {
         result.success = false
       }
-    } catch (error: unknown) {
+    } catch (error) {
       result.success = false
       result.msg = ApiClientUtils.getErrorMessage(error)
     }
 
     return result
   }
+}
+
+export interface ApiClientGetOptions<DataType, WhereType> {
+  params?: any,
+  config?: AxiosRequestConfig<DataType> | undefined
+  status?: number[],
+  where?: WhereType,
+  sort?: any,
+  select?: any,
+  nested?: any,
+  exclude?: any,
+  limit?: number,
+  skip?: number,
+  page?: number,
 }
 
 export abstract class BaseApiClient<DataType, KeyType, WhereType, PostResponseType, PutResponseType> {
@@ -168,19 +182,7 @@ export abstract class BaseApiClient<DataType, KeyType, WhereType, PostResponseTy
     })
   }
 
-  async get(args?: {
-    params?: any,
-    config?: AxiosRequestConfig<DataType> | undefined
-    status?: number[],
-    where?: WhereType,
-    sort?: any,
-    select?: any,
-    nested?: any,
-    exclude?: any,
-    limit?: number,
-    skip?: number,
-    page?: number,
-  }): Promise<IApiResult<IApiGetResult<DataType[]>>> {
+  async get(args?: ApiClientGetOptions<DataType, WhereType>): Promise<IApiResult<IApiGetResult<DataType[]>>> {
     return ApiClientUtils.get<DataType, WhereType>({
       apiUrl: this.apiUrl,
       axios: this.axios,
