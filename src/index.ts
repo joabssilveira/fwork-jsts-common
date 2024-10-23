@@ -1,8 +1,6 @@
-// import { MD5 } from 'md5-js-tools';
 import CryptoJS from "crypto-js";
-import { v4 as uuid } from 'uuid'
-import moment from 'moment'
-import { IApiGetResult, IApiGetResultExt, IApiResult } from "./api";
+import moment from 'moment';
+import { v4 as uuid } from 'uuid';
 import { ApiClientGetOptions, ApiClientUtils, BaseApiClient } from "./apiClient";
 
 export const showDebugLog = false
@@ -207,7 +205,7 @@ export class NumberUtils {
    * @deprecated
    */
   static onlyNumbers = (value: any) => {
-    return Number(value)
+    return typeof value == 'string' ? Number(value.replace(/[^0-9]/g, '')) : Number(value)
   }
 
   static randomIntFromInterval = (min: number, max: number) => {
@@ -217,10 +215,12 @@ export class NumberUtils {
 
 // ARRAY
 export class ArrayUtils {
+  // select a random item in an array
   static randomItem = (list: any[]) => {
     return list[Math.floor((Math.random() * list.length))];
   }
 
+  // checks if there is at least 1 item from a to b
   static checkArrays = (arrayA: any[], arrayB: any[]) => arrayA?.some(r => arrayB?.indexOf(r) >= 0)
 
   static intersection = (array1: any[], array2: any[]): any[] => {
@@ -349,10 +349,16 @@ export class CommonUtils {
     return email.indexOf('@') !== -1
   }
 
+  /**
+   * @deprecated
+   */
   static getNewUuid() {
     return uuid()
   }
 
+  /**
+   * @deprecated
+   */
   static uuidv7() {
     const UNIX_TS_MS_BITS = 48;
     const VER_DIGIT = "7";
@@ -528,7 +534,4 @@ export class ConsoleLogUtils {
   }
 }
 
-export {
-  IApiGetResultExt, IApiGetResult, IApiResult,
-  BaseApiClient, ApiClientGetOptions, ApiClientUtils,
-}
+export { ApiClientGetOptions, ApiClientUtils, BaseApiClient };

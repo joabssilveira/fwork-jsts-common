@@ -1,5 +1,12 @@
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosStatic } from "axios";
-import { IApiGetResult, IApiResult } from "../api";
+import { ApiResponseDeleteData, ApiResponseGetListData, ApiResponsePostData, ApiResponsePutData } from "../api";
+import { Where } from "../api/query";
+
+export interface IApiClientResult<T> {
+  data?: T
+  success?: boolean
+  msg?: string
+}
 
 export class ApiClientUtils {
   static getErrorMessage(error: any) {
@@ -13,15 +20,15 @@ export class ApiClientUtils {
     axios?: AxiosStatic | AxiosInstance,
     status?: number[],
     config?: AxiosRequestConfig<DataType> | undefined
-  }): Promise<IApiResult<ResponseType>> {
-    const result: IApiResult<ResponseType> = {}
+  }): Promise<IApiClientResult<ApiResponsePostData<ResponseType>>> {
+    const result: IApiClientResult<ApiResponsePostData<ResponseType>> = {}
 
     try {
       const response = await (args.axios || axios).post(args.apiUrl, args.data, args.config)
 
       if ((args.status?.indexOf(response.status) || [200, 201].indexOf(response.status)) != -1) {
         if (response.data)
-          result.data = response.data as ResponseType
+          result.data = response.data as ApiResponsePostData<ResponseType>
         result.success = true
       }
       else {
@@ -35,7 +42,7 @@ export class ApiClientUtils {
     return result
   }
 
-  static async get<DataType, WhereType>(args: {
+  static async get<DataType, WhereType extends Where<DataType>>(args: {
     apiUrl: string,
     axios?: AxiosStatic | AxiosInstance,
     params?: any,
@@ -49,13 +56,12 @@ export class ApiClientUtils {
     limit?: number,
     skip?: number,
     page?: number,
-
-  }): Promise<IApiResult<IApiGetResult<DataType[]>>> {
-    const result: IApiResult<IApiGetResult<DataType[]>> = {}
+  }): Promise<IApiClientResult<ApiResponseGetListData<DataType>>> {
+    const result: IApiClientResult<ApiResponseGetListData<DataType>> = {}
     result.data = {}
 
     try {
-      const response = await (args.axios || axios).get<IApiGetResult<DataType[]>>(args.apiUrl, {
+      const response = await (args.axios || axios).get<ApiResponseGetListData<DataType>>(args.apiUrl, {
         params: {
           where: JSON.stringify(args.where),
           sort: JSON.stringify(args.sort),
@@ -72,7 +78,7 @@ export class ApiClientUtils {
       })
 
       if (args.status?.indexOf(response.status) != -1 || response.status === 200) {
-        result.data = response.data
+        result.data = response.data as ApiResponseGetListData<DataType>
         result.success = true
       }
       else {
@@ -92,15 +98,15 @@ export class ApiClientUtils {
     axios?: AxiosStatic | AxiosInstance,
     config?: AxiosRequestConfig<DataType> | undefined
     status?: number[],
-  }): Promise<IApiResult<ResponseType>> {
-    const result: IApiResult<ResponseType> = {}
+  }): Promise<IApiClientResult<ApiResponsePutData<ResponseType>>> {
+    const result: IApiClientResult<ApiResponsePutData<ResponseType>> = {}
 
     try {
       const response = await (args.axios || axios).put(args.apiUrl, args.data, args.config)
 
       if (args.status?.indexOf(response.status) != -1 || response.status === 200) {
         if (response.data)
-          result.data = response.data as ResponseType
+          result.data = response.data as ApiResponsePutData<ResponseType>
         result.success = true
       }
       else {
@@ -120,14 +126,14 @@ export class ApiClientUtils {
     axios?: AxiosStatic | AxiosInstance,
     config?: AxiosRequestConfig<any> | undefined
     status?: number[],
-  }) {
-    const result: IApiResult<boolean> = {}
+  }): Promise<IApiClientResult<ApiResponseDeleteData>> {
+    const result: IApiClientResult<ApiResponseDeleteData> = {}
 
     try {
       const response = await (args.axios || axios).delete(`${args.apiUrl}/${args.key}`, args.config)
 
       if (args.status?.indexOf(response.status) != -1 || response.status === 200) {
-        result.data = true
+        result.data = response.data as ApiResponseDeleteData
         result.success = true
       }
       else {
@@ -142,7 +148,7 @@ export class ApiClientUtils {
   }
 }
 
-export interface ApiClientGetOptions<DataType, WhereType> {
+export interface ApiClientGetOptions<DataType, WhereType extends Where<DataType>> {
   params?: any,
   config?: AxiosRequestConfig<DataType> | undefined
   status?: number[],
@@ -156,7 +162,7 @@ export interface ApiClientGetOptions<DataType, WhereType> {
   page?: number,
 }
 
-export abstract class BaseApiClient<DataType, KeyType, WhereType, PostResponseType, PutResponseType> {
+export abstract class BaseApiClient<DataType, KeyType, WhereType extends Where<DataType>, PostResponseType, PutResponseType> {
   axios?: AxiosStatic | AxiosInstance
   apiUrl: string
 
@@ -172,31 +178,19 @@ export abstract class BaseApiClient<DataType, KeyType, WhereType, PostResponseTy
     data: DataType,
     status?: number[],
     config?: AxiosRequestConfig<DataType> | undefined
-  }): Promise<IApiResult<PostResponseType>> {
-    return ApiClientUtils.post<DataType, PostResponseType>({
+  }): Promise<IApiClientResult<ApiResponsePostData<PostResponseType>>> {
+    return ApiClientUtils.post<DataType, ApiResponsePostData<PostResponseType>>({
       apiUrl: this.apiUrl,
       axios: this.axios,
-      config: args.config,
-      status: args.status,
-      data: args.data,
+      ...args,
     })
   }
 
-  async get(args?: ApiClientGetOptions<DataType, WhereType>): Promise<IApiResult<IApiGetResult<DataType[]>>> {
+  async get(args?: ApiClientGetOptions<DataType, WhereType>): Promise<IApiClientResult<ApiResponseGetListData<DataType>>> {
     return ApiClientUtils.get<DataType, WhereType>({
       apiUrl: this.apiUrl,
       axios: this.axios,
-      params: args?.params,
-      config: args?.config,
-      status: args?.status,
-      where: args?.where,
-      sort: args?.sort,
-      select: args?.select,
-      nested: args?.nested,
-      exclude: args?.exclude,
-      limit: args?.limit,
-      skip: args?.skip,
-      page: args?.page,
+      ...args,
     })
   }
 
@@ -204,13 +198,11 @@ export abstract class BaseApiClient<DataType, KeyType, WhereType, PostResponseTy
     data: DataType,
     status?: number[],
     config?: AxiosRequestConfig<DataType> | undefined
-  }): Promise<IApiResult<PutResponseType>> {
+  }): Promise<IApiClientResult<ApiResponsePutData<PutResponseType>>> {
     return ApiClientUtils.put<DataType, PutResponseType>({
       apiUrl: this.apiUrl,
       axios: this.axios,
-      config: args.config,
-      status: args.status,
-      data: args.data,
+      ...args,
     })
   }
 
@@ -218,13 +210,11 @@ export abstract class BaseApiClient<DataType, KeyType, WhereType, PostResponseTy
     key: KeyType,
     config?: AxiosRequestConfig<DataType> | undefined
     status?: number[],
-  }) {
+  }): Promise<IApiClientResult<ApiResponseDeleteData>> {
     return ApiClientUtils.delete({
       apiUrl: `${this.apiUrl}`,
       axios: this.axios,
-      config: args.config,
-      status: args.status,
-      key: args.key,
+      ...args,
     })
   }
 }
