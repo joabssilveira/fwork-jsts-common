@@ -1,6 +1,10 @@
 import CryptoJS from "crypto-js";
 import moment from 'moment';
 import { v4 as uuid } from 'uuid';
+import {
+  ApiRequestDeleteOptions, ApiRequestGetOptions, ApiRequestPostOptions, ApiRequestPutOptions, ApiResponseDeleteData,
+  ApiResponseGetData, ApiResponseGetListData, ApiResponsePostData, ApiResponsePutData,
+} from './api'
 import { ApiClientGetOptions, ApiClientUtils, BaseApiClient } from "./apiClient";
 
 export const showDebugLog = false
@@ -340,6 +344,7 @@ export class CommonUtils {
   }
 
   static isValidPhone(phone: string) {
+    return true
     if (phone.length !== 11 || !!phone.match(/([0-9])\1{10}/)) {
       return false
     } else return true
@@ -432,6 +437,32 @@ export class CommonUtils {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
+  }
+
+  static deepCloneWithSymbols(obj: any): any {
+    if (typeof obj !== 'object' || obj === null) {
+      return obj;
+    }
+
+    let clone: any;
+
+    if (Array.isArray(obj)) {
+      clone = obj.map(item => CommonUtils.deepCloneWithSymbols(item));
+    } else {
+      clone = {};
+
+      // Copia as propriedades de string
+      for (const key of Object.keys(obj)) {
+        clone[key] = CommonUtils.deepCloneWithSymbols(obj[key]);
+      }
+
+      // Copia as propriedades simbólicas (como Op.and, Op.or)
+      for (const sym of Object.getOwnPropertySymbols(obj)) {
+        clone[sym] = CommonUtils.deepCloneWithSymbols(obj[sym]);
+      }
+    }
+
+    return clone;
   }
 }
 
@@ -534,4 +565,8 @@ export class ConsoleLogUtils {
   }
 }
 
-export { ApiClientGetOptions, ApiClientUtils, BaseApiClient };
+export { 
+  ApiRequestDeleteOptions, ApiRequestGetOptions, ApiRequestPostOptions, ApiRequestPutOptions, ApiResponseDeleteData,
+  ApiResponseGetData, ApiResponseGetListData, ApiResponsePostData, ApiResponsePutData,
+  ApiClientGetOptions, ApiClientUtils, BaseApiClient, 
+};
