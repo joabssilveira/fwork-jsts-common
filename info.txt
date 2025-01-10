@@ -1,0 +1,2 @@
+usar "type": "module" no package.json quebrou o pacote na aplicacao consumidora
+nao importou se ela estava configuira para usar ESM ou CommonJS
