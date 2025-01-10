@@ -67,6 +67,6 @@
       "limit": "10 KB"
     }
   ],
-  "typings": "dist/index.d.ts",
+  "types": "dist/index.d.ts",
   "version": "2.0.2"
 }
