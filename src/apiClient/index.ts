@@ -2,6 +2,20 @@ import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosStatic } fro
 import { ApiResponseDeleteData, ApiResponseGetListData, ApiResponsePostData, ApiResponsePutData } from "../api";
 import { Where } from "../api/query";
 
+export interface ApiClientGetOptions<DataType, WhereType extends Where<DataType>> {
+  params?: any,
+  config?: AxiosRequestConfig<DataType> | undefined
+  status?: number[],
+  where?: WhereType,
+  sort?: any,
+  select?: any,
+  nested?: any,
+  exclude?: any,
+  limit?: number,
+  skip?: number,
+  page?: number,
+}
+
 export interface IApiClientResult<T> {
   data?: T
   success?: boolean
@@ -146,20 +160,6 @@ export class ApiClientUtils {
 
     return result
   }
-}
-
-export interface ApiClientGetOptions<DataType, WhereType extends Where<DataType>> {
-  params?: any,
-  config?: AxiosRequestConfig<DataType> | undefined
-  status?: number[],
-  where?: WhereType,
-  sort?: any,
-  select?: any,
-  nested?: any,
-  exclude?: any,
-  limit?: number,
-  skip?: number,
-  page?: number,
 }
 
 export abstract class BaseApiClient<DataType, KeyType, WhereType extends Where<DataType>, PostResponseType, PutResponseType> {
