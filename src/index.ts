@@ -138,40 +138,100 @@ export class StringUtils {
 
 // COLORS
 export class ColorUtils {
-  static incColor = (color: string, amt: number) => {
-    var usePound = false;
+  // static incColor = (color: string, amt: number) => {
+  //   var usePound = false;
 
-    if (!color) return color
+  //   if (!color) return color
 
-    if (color[0] === "#") {
-      color = color.slice(1);
-      usePound = true;
+  //   if (color[0] === "#") {
+  //     color = color.slice(1);
+  //     usePound = true;
+  //   }
+
+  //   var num = parseInt(color, 16);
+
+  //   var r = (num >> 16) + amt;
+
+  //   if (r > 255) r = 255;
+  //   else if (r < 0) r = 0;
+
+  //   var b = ((num >> 8) & 0x00FF) + amt;
+
+  //   if (b > 255) b = 255;
+  //   else if (b < 0) b = 0;
+
+  //   var g = (num & 0x0000FF) + amt;
+
+  //   if (g > 255) g = 255;
+  //   else if (g < 0) g = 0;
+
+  //   var x = b << 8
+  //   var y = r << 16
+  //   var z = g | (x) | (y)
+  //   var result = (z).toString(16)
+
+  //   return (usePound ? "#" : "") + result
+
+  // }
+
+  static incColor(color: string, amt: number): string {
+    if (!color) return color.trim();
+
+    const isHex = color.startsWith("#");
+    const isRgb = color.startsWith("rgb");
+    const isHsl = color.startsWith("hsl");
+
+    if (isHex) {
+      // Converte HEX para RGB
+      let hex = color.slice(1);
+      if (hex.length === 3) {
+        hex = hex
+          .split("")
+          .map((char) => char + char)
+          .join(""); // Expande #abc para #aabbcc
+      }
+
+      let num = parseInt(hex, 16);
+      let r = (num >> 16) + amt;
+      let g = ((num >> 8) & 0x00ff) + amt;
+      let b = (num & 0x0000ff) + amt;
+
+      // Ajusta os valores para estarem entre 0 e 255
+      r = Math.max(0, Math.min(255, r));
+      g = Math.max(0, Math.min(255, g));
+      b = Math.max(0, Math.min(255, b));
+
+      return `#${((1 << 24) + (r << 16) + (g << 8) + b)
+        .toString(16)
+        .slice(1)
+        .toUpperCase()}`;
     }
 
-    var num = parseInt(color, 16);
+    if (isRgb) {
+      const match = color.match(/\d+/g);
+      if (!match) return color;
+      let [r, g, b, a] = match.map(Number);
 
-    var r = (num >> 16) + amt;
+      r = Math.max(0, Math.min(255, r + amt));
+      g = Math.max(0, Math.min(255, g + amt));
+      b = Math.max(0, Math.min(255, b + amt));
 
-    if (r > 255) r = 255;
-    else if (r < 0) r = 0;
+      return a !== undefined ? `rgba(${r}, ${g}, ${b}, ${a})` : `rgb(${r}, ${g}, ${b})`;
+    }
 
-    var b = ((num >> 8) & 0x00FF) + amt;
+    if (isHsl) {
+      const match = color.match(/(\d+(\.\d+)?)/g);
+      if (!match) return color;
+      let [h, s, l, a] = match.map(Number);
 
-    if (b > 255) b = 255;
-    else if (b < 0) b = 0;
+      l = Math.max(0, Math.min(100, l + (amt / 255) * 100));
 
-    var g = (num & 0x0000FF) + amt;
+      return a !== undefined
+        ? `hsla(${h}, ${s}%, ${l}%, ${a})`
+        : `hsl(${h}, ${s}%, ${l}%)`;
+    }
 
-    if (g > 255) g = 255;
-    else if (g < 0) g = 0;
-
-    var x = b << 8
-    var y = r << 16
-    var z = g | (x) | (y)
-    var result = (z).toString(16)
-
-    return (usePound ? "#" : "") + result
-
+    return color; // Caso a cor não seja reconhecida
   }
 
   static randomColorHexStr = () => {
