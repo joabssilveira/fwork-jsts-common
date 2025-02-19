@@ -3,7 +3,7 @@
   "dependencies": {
     "@types/crypto-js": "^4.2.2",
     "@types/uuid": "^9.0.1",
-    "axios": "^1.2.1",
+    "axios": "^1.7.9",
     "crypto-js": "^4.1.1",
     "moment": "^2.29.4",
     "uuid": "^9.0.0"
