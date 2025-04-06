@@ -2,6 +2,7 @@ import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosStatic } fro
 import { ApiResponseDeleteData, ApiResponseGetListData, ApiResponsePostData, ApiResponsePutData } from "../api";
 import { Where } from "../api/query";
 
+// TODO-rename to ApiClientRequestGetOptions
 export interface ApiClientGetOptions<DataType, WhereType extends Where<DataType>> {
   params?: any,
   config?: AxiosRequestConfig<DataType> | undefined
@@ -19,13 +20,25 @@ export interface ApiClientGetOptions<DataType, WhereType extends Where<DataType>
 export interface IApiClientResult<T> {
   data?: T
   success?: boolean
-  msg?: string
+  msg?: string,
+  status?: number,
 }
 
 export class ApiClientUtils {
   static getErrorMessage(error: any) {
-    return typeof error === 'string' ? error :
-      (error as AxiosError).response?.data || (error as AxiosError).message || (error as any).data || (error as any).message || (error as any).msg
+    return (
+      // axios
+      ((error as AxiosError).response?.data as any)?.message ??
+      (typeof (error as AxiosError).response?.data == 'string' ? (error as AxiosError).response?.data : null) ??
+      (error as AxiosError).message ??
+      // custom
+      (error as any)?.data?.message ??
+      (error as any).data?.msg ??
+      (typeof (error as any).data == 'string' ? (error as any).data : null) ??
+      (error as any).message ??
+      (error as any).msg ??
+      error
+    )
   }
 
   static async post<DataType, ResponseType>(args: {
@@ -51,6 +64,7 @@ export class ApiClientUtils {
     } catch (error) {
       result.success = false
       result.msg = ApiClientUtils.getErrorMessage(error)
+      result.status = axios.isAxiosError(error) ? (error as AxiosError).status : 500
     }
 
     return result
@@ -73,7 +87,7 @@ export class ApiClientUtils {
   }): Promise<IApiClientResult<ApiResponseGetListData<DataType>>> {
     const result: IApiClientResult<ApiResponseGetListData<DataType>> = {}
     result.data = {}
-
+    
     try {
       const response = await (args.axios || axios).get<ApiResponseGetListData<DataType>>(args.apiUrl, {
         params: {
@@ -101,7 +115,8 @@ export class ApiClientUtils {
     } catch (error) {
       result.success = false
       result.msg = ApiClientUtils.getErrorMessage(error)
-    }
+      result.status = axios.isAxiosError(error) ? (error as AxiosError).status : 500
+    } 
 
     return result
   }
@@ -114,7 +129,7 @@ export class ApiClientUtils {
     status?: number[],
   }): Promise<IApiClientResult<ApiResponsePutData<ResponseType>>> {
     const result: IApiClientResult<ApiResponsePutData<ResponseType>> = {}
-
+    
     try {
       const response = await (args.axios || axios).put(args.apiUrl, args.data, args.config)
 
@@ -129,7 +144,8 @@ export class ApiClientUtils {
     } catch (error) {
       result.success = false
       result.msg = ApiClientUtils.getErrorMessage(error)
-    }
+      result.status = axios.isAxiosError(error) ? (error as AxiosError).status : 500
+    } 
 
     return result
   }
@@ -142,7 +158,7 @@ export class ApiClientUtils {
     status?: number[],
   }): Promise<IApiClientResult<ApiResponseDeleteData>> {
     const result: IApiClientResult<ApiResponseDeleteData> = {}
-
+    
     try {
       const response = await (args.axios || axios).delete(`${args.apiUrl}/${args.key}`, args.config)
 
@@ -156,7 +172,8 @@ export class ApiClientUtils {
     } catch (error) {
       result.success = false
       result.msg = ApiClientUtils.getErrorMessage(error)
-    }
+      result.status = axios.isAxiosError(error) ? (error as AxiosError).status : 500
+    } 
 
     return result
   }

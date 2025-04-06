@@ -396,7 +396,6 @@ export class CommonUtils {
   }
 
   static isValidCPF(cpf: string) {
-
     cpf = cpf.replace(/[^\d]+/g, '')
 
     if (cpf.length !== 11 || !!cpf.match(/(\d)\1{10}/)) {
