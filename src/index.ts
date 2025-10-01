@@ -4,17 +4,15 @@ import { v4 as uuid } from 'uuid';
 import {
   ApiRequestDeleteOptions, ApiRequestGetOptions, ApiRequestPostOptions, ApiRequestPutOptions, ApiResponseDeleteData,
   ApiResponseGetData, ApiResponseGetListData, ApiResponsePostData, ApiResponsePutData,
-} from './api'
-import { Where } from './api/query'
+} from './api';
+import { Where } from './api/query';
 import { ApiClientGetOptions, ApiClientUtils, BaseApiClient, IApiClientResult } from "./apiClient";
-import { PeriodValuesKeys, periodsValues } from './dateTime'
+import { PeriodValuesKeys, periodsValues } from './dateTime';
 
 export {
-  ApiRequestDeleteOptions, ApiRequestGetOptions, ApiRequestPostOptions, ApiRequestPutOptions, ApiResponseDeleteData,
-  ApiResponseGetData, ApiResponseGetListData, ApiResponsePostData, ApiResponsePutData,
-  Where,
-  ApiClientGetOptions, ApiClientUtils, BaseApiClient, IApiClientResult,
-  PeriodValuesKeys, periodsValues,
+  ApiClientGetOptions, ApiClientUtils, ApiRequestDeleteOptions, ApiRequestGetOptions, ApiRequestPostOptions, ApiRequestPutOptions, ApiResponseDeleteData,
+  ApiResponseGetData, ApiResponseGetListData, ApiResponsePostData, ApiResponsePutData, BaseApiClient, IApiClientResult,
+  PeriodValuesKeys, Where, periodsValues
 };
 
 export const showDebugLog = false
@@ -369,6 +367,16 @@ export class CryptUtils {
   }
 }
 
+// LOCALE
+export class LocaleUtils {
+  static localeCurrencyMap: Record<string, string> = {
+    'pt-BR': 'BRL',
+    'en-US': 'USD',
+    'en-GB': 'GBP',
+    'de-DE': 'EUR',
+  }
+}
+
 // COMMON
 export class CommonUtils {
   // will only work for functions defined with the async keyword, not for functions that return promises without being declared as async.
@@ -476,17 +484,32 @@ export class CommonUtils {
     return value && typeof value === 'object' && !Array.isArray(value) && !(value instanceof Date);
   }
 
-  static exportToCSV = (bodyList: any[]) => {
+  static exportToCSV = (bodyList: any[], headers?: string[]) => {
     if (!bodyList.length) return;
+
+    // Detecta linguagem dinamicamente
+    const getLocale = () => {
+      if (typeof navigator !== "undefined" && navigator.language) {
+        return navigator.language;
+      }
+      // Node.js fallback
+      return Intl.DateTimeFormat().resolvedOptions().locale || "en-US";
+    };
+
+    const locale = getLocale();
 
     const quoteIfNeeded = (value: any) => {
       if (typeof value === 'string' && (value.includes(';') || value.includes('\n') || value.includes('"'))) {
         return `"${value.replace(/"/g, '""')}"`
-      }
+      } else if (typeof value == 'number')
+        return new Intl.NumberFormat(locale, {
+          style: "decimal",
+          currency: LocaleUtils.localeCurrencyMap[locale],
+        }).format(value);
       return value
     };
 
-    const headers = Object.keys(bodyList[0]).join(';')
+    const finalHeaders = headers?.join(';') ?? Object.keys(bodyList[0]).join(';')
     const rows = bodyList.map((item) =>
       Object.values(item)
         .map(value => {
@@ -498,7 +521,7 @@ export class CommonUtils {
         .join(';')
     ).join('\n')
 
-    const csvContent = `data:text/csv;charset=utf-8,${headers}\n${rows}`;
+    const csvContent = `data:text/csv;charset=utf-8,${finalHeaders}\n${rows}`;
     const encodedUri = encodeURI(csvContent)
     const link = document.createElement('a')
     link.setAttribute('href', encodedUri)
