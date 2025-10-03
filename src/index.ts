@@ -7,12 +7,12 @@ import {
 } from './api';
 import { Where } from './api/query';
 import { ApiClientGetOptions, ApiClientUtils, BaseApiClient, IApiClientResult } from "./apiClient";
-import { PeriodValuesKeys, periodsValues } from './dateTime';
+import { PeriodOptionsNames, periodOptions } from './dateTime';
 
 export {
   ApiClientGetOptions, ApiClientUtils, ApiRequestDeleteOptions, ApiRequestGetOptions, ApiRequestPostOptions, ApiRequestPutOptions, ApiResponseDeleteData,
   ApiResponseGetData, ApiResponseGetListData, ApiResponsePostData, ApiResponsePutData, BaseApiClient, IApiClientResult,
-  PeriodValuesKeys, Where, periodsValues
+  PeriodOptionsNames, Where, periodOptions, 
 };
 
 export const showDebugLog = false

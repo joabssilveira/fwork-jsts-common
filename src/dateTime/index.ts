@@ -1,6 +1,6 @@
 import moment from "moment"
 
-export const periodsValues = {
+export const periodOptions = {
   'today': () => {
     const di = moment().startOf('day')
     const df = moment().endOf('day')
@@ -123,4 +123,4 @@ export const periodsValues = {
   },
 }
 
-export type PeriodValuesKeys = keyof typeof periodsValues;
+export type PeriodOptionsNames = keyof typeof periodOptions;
