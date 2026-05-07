@@ -12,13 +12,17 @@ type LogicalOp<T> = {
 
 type ComparisonOp<T> = {
   $eq?: T;
+  $ne?: T;
+  
   $gt?: T;
   $gte?: T;
-  $in?: [T] extends AnyArray<any> ? Unpacked<T>[] : T[];
+  
   $lt?: T;
   $lte?: T;
-  $ne?: T;
+  
+  $in?: [T] extends AnyArray<any> ? Unpacked<T>[] : T[];
   $nin?: [T] extends AnyArray<any> ? Unpacked<T>[] : T[];
+
   $not?: T extends string ? ComparisonOp<T> | RegExp : ComparisonOp<T>;
   $exists?: boolean;
   $regex?: T extends string ? RegExp | string : never;

@@ -1,11 +1,13 @@
-import CryptoJS from "crypto-js";
+// import CryptoJS from "crypto-js";
 import moment from 'moment';
-import { v4 as uuid } from 'uuid';
+// import { v4 as uuid } from 'uuid';
 import {
   ApiRequestDeleteOptions, ApiRequestGetOptions, ApiRequestPostOptions, ApiRequestPutOptions, ApiResponseDeleteData,
   ApiResponseGetData, ApiResponseGetListData, ApiResponsePostData, ApiResponsePutData,
 } from './api';
 import { Where } from './api/query';
+// import { Where as WhereV2, ComparisonOperators, FieldCondition, LogicalOperators } from './api/queryv2'
+// import { Nested, NestedConfig, NestedNode, NestedQuery, buildNestedString, buildQueryParams } from './api/nested'
 import { ApiClientGetOptions, ApiClientUtils, BaseApiClient, IApiClientResult } from "./apiClient";
 import { PeriodOptionsNames, periodOptions } from './dateTime';
 
@@ -13,6 +15,8 @@ export {
   ApiClientGetOptions, ApiClientUtils, ApiRequestDeleteOptions, ApiRequestGetOptions, ApiRequestPostOptions, ApiRequestPutOptions, ApiResponseDeleteData,
   ApiResponseGetData, ApiResponseGetListData, ApiResponsePostData, ApiResponsePutData, BaseApiClient, IApiClientResult,
   PeriodOptionsNames, Where, periodOptions, 
+  // WhereV2, ComparisonOperators, FieldCondition, LogicalOperators,
+  // Nested, NestedConfig, NestedNode, NestedQuery, buildNestedString, buildQueryParams
 };
 
 export const showDebugLog = false
@@ -319,53 +323,53 @@ export class ArrayUtils {
 /**
    * @deprecated
    */
-export class CryptUtils {
-  // NUNCA MUDAR ESSE VALOR
-  /**
-   * @deprecated
-   */
-  static secretKey = 'dd6924666ccf03064b22806cfee495c2'
+// export class CryptUtils {
+//   // NUNCA MUDAR ESSE VALOR
+//   /**
+//    * @deprecated
+//    */
+//   // static secretKey = 'dd6924666ccf03064b22806cfee495c2'
 
-  /**
-   * @deprecated 
-   */
-  static crypt(text: string) {
-    const encrypt = CryptoJS.AES.encrypt(text, CryptUtils.secretKey).toString()
-    return encrypt
-  }
+//   /**
+//    * @deprecated 
+//    */
+//   // static crypt(text: string) {
+//   //   const encrypt = CryptoJS.AES.encrypt(text, CryptUtils.secretKey).toString()
+//   //   return encrypt
+//   // }
 
-  /**
-   * @deprecated 
-   */
-  static decrypt = (text: string) => {
-    const bytes = CryptoJS.AES.decrypt(text, CryptUtils.secretKey)
-    const decrypt = bytes.toString(CryptoJS.enc.Utf8)
-    return decrypt
-  }
+//   /**
+//    * @deprecated 
+//    */
+//   // static decrypt = (text: string) => {
+//   //   const bytes = CryptoJS.AES.decrypt(text, CryptUtils.secretKey)
+//   //   const decrypt = bytes.toString(CryptoJS.enc.Utf8)
+//   //   return decrypt
+//   // }
 
-  /**
-   * @deprecated 
-   */
-  static cryptMD5(text: string) {
-    // var hash = MD5.generate(CryptUtils.secretKey + text);
-    var hash = CryptoJS.MD5(CryptUtils.secretKey + text).toString()
-    return hash
-  }
+//   /**
+//    * @deprecated 
+//    */
+//   // static cryptMD5(text: string) {
+//   //   // var hash = MD5.generate(CryptUtils.secretKey + text);
+//   //   var hash = CryptoJS.MD5(CryptUtils.secretKey + text).toString()
+//   //   return hash
+//   // }
 
-  /**
-   * @deprecated
-   */
-  static parseJwt(token: any) {
-    if (token) {
-      var a = token.split('.')
-      if (a.length >= 2) {
-        var base64Payload = a[1];
-        var payload = Buffer.from(base64Payload, 'base64');
-        return JSON.parse(payload.toString());
-      }
-    }
-  }
-}
+//   /**
+//    * @deprecated
+//    */
+//   // static parseJwt(token: any) {
+//   //   if (token) {
+//   //     var a = token.split('.')
+//   //     if (a.length >= 2) {
+//   //       var base64Payload = a[1];
+//   //       var payload = Buffer.from(base64Payload, 'base64');
+//   //       return JSON.parse(payload.toString());
+//   //     }
+//   //   }
+//   // }
+// }
 
 // LOCALE
 export class LocaleUtils {
@@ -379,6 +383,8 @@ export class LocaleUtils {
 
 // COMMON
 export class CommonUtils {
+  static sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
   // will only work for functions defined with the async keyword, not for functions that return promises without being declared as async.
   // For instance, let's say you have a function like this:
   // function myFunction(): Promise<number> {
@@ -421,64 +427,61 @@ export class CommonUtils {
   }
 
   static isValidPhone(phone: string) {
-    return true
-    if (phone.length !== 11 || !!phone.match(/([0-9])\1{10}/)) {
-      return false
-    } else return true
+    return StringUtils.onlyNumbers(phone).length == 10 || StringUtils.onlyNumbers(phone).length == 11
   }
 
   static isValidEmail(email: string) {
-    return email.indexOf('@') !== -1
+    return email.indexOf('@') !== -1 && email.indexOf('.') !== -1
   }
 
   /**
    * @deprecated
    */
-  static getNewUuid() {
-    return uuid()
-  }
+  // static getNewUuid() {
+  //   return uuid()
+  // }
 
   /**
    * @deprecated
    */
-  static uuidv7() {
-    const UNIX_TS_MS_BITS = 48;
-    const VER_DIGIT = "7";
-    const SEQ_BITS = 12;
-    const VAR = 0b10;
-    const VAR_BITS = 2;
-    const RAND_BITS = 62;
+  // static uuidv7() {
+  //   const UNIX_TS_MS_BITS = 48;
+  //   const VER_DIGIT = "7";
+  //   const SEQ_BITS = 12;
+  //   const VAR = 0b10;
+  //   const VAR_BITS = 2;
+  //   const RAND_BITS = 62;
 
-    let prevTimestamp = -1;
-    let seq = 0;
+  //   let prevTimestamp = -1;
+  //   let seq = 0;
 
-    const timestamp = Math.max(Date.now(), prevTimestamp);
-    seq = timestamp === prevTimestamp ? seq + 1 : 0;
-    prevTimestamp = timestamp;
+  //   const timestamp = Math.max(Date.now(), prevTimestamp);
+  //   seq = timestamp === prevTimestamp ? seq + 1 : 0;
+  //   prevTimestamp = timestamp;
 
-    const var_rand = new Uint32Array(2);
-    crypto.getRandomValues(var_rand);
-    var_rand[0] = (VAR << (32 - VAR_BITS)) | (var_rand[0] >>> VAR_BITS);
+  //   const var_rand = new Uint32Array(2);
+  //   crypto.getRandomValues(var_rand);
+  //   var_rand[0] = (VAR << (32 - VAR_BITS)) | (var_rand[0] >>> VAR_BITS);
 
-    const digits =
-      timestamp.toString(16).padStart(UNIX_TS_MS_BITS / 4, "0") +
-      VER_DIGIT +
-      seq.toString(16).padStart(SEQ_BITS / 4, "0") +
-      var_rand[0].toString(16).padStart((VAR_BITS + RAND_BITS) / 2 / 4, "0") +
-      var_rand[1].toString(16).padStart((VAR_BITS + RAND_BITS) / 2 / 4, "0");
+  //   const digits =
+  //     timestamp.toString(16).padStart(UNIX_TS_MS_BITS / 4, "0") +
+  //     VER_DIGIT +
+  //     seq.toString(16).padStart(SEQ_BITS / 4, "0") +
+  //     var_rand[0].toString(16).padStart((VAR_BITS + RAND_BITS) / 2 / 4, "0") +
+  //     var_rand[1].toString(16).padStart((VAR_BITS + RAND_BITS) / 2 / 4, "0");
 
-    return (
-      digits.slice(0, 8) +
-      "-" +
-      digits.slice(8, 12) +
-      "-" +
-      digits.slice(12, 16) +
-      "-" +
-      digits.slice(16, 20) +
-      "-" +
-      digits.slice(20)
-    );
-  }
+  //   return (
+  //     digits.slice(0, 8) +
+  //     "-" +
+  //     digits.slice(8, 12) +
+  //     "-" +
+  //     digits.slice(12, 16) +
+  //     "-" +
+  //     digits.slice(16, 20) +
+  //     "-" +
+  //     digits.slice(20)
+  //   );
+  // }
 
   static isObject(value: any): value is { [key: string]: any } {
     return value && typeof value === 'object' && !Array.isArray(value) && !(value instanceof Date);

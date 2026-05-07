@@ -7,14 +7,16 @@ export interface ApiClientGetOptions<DataType, WhereType extends Where<DataType>
   params?: any,
   config?: AxiosRequestConfig<DataType> | undefined
   status?: number[],
+
   where?: WhereType,
   sort?: any,
   select?: any,
   nested?: any,
-  exclude?: any,
   limit?: number,
   skip?: number,
   page?: number,
+
+  exclude?: any,
 }
 
 export interface IApiClientResult<T> {
@@ -87,7 +89,7 @@ export class ApiClientUtils {
   }): Promise<IApiClientResult<ApiResponseGetListData<DataType>>> {
     const result: IApiClientResult<ApiResponseGetListData<DataType>> = {}
     result.data = {}
-    
+
     try {
       const response = await (args.axios || axios).get<ApiResponseGetListData<DataType>>(args.apiUrl, {
         params: {
@@ -116,7 +118,7 @@ export class ApiClientUtils {
       result.success = false
       result.msg = ApiClientUtils.getErrorMessage(error)
       result.status = axios.isAxiosError(error) ? (error as AxiosError).status : 500
-    } 
+    }
 
     return result
   }
@@ -129,7 +131,7 @@ export class ApiClientUtils {
     status?: number[],
   }): Promise<IApiClientResult<ApiResponsePutData<ResponseType>>> {
     const result: IApiClientResult<ApiResponsePutData<ResponseType>> = {}
-    
+
     try {
       const response = await (args.axios || axios).put(args.apiUrl, args.data, args.config)
 
@@ -145,7 +147,7 @@ export class ApiClientUtils {
       result.success = false
       result.msg = ApiClientUtils.getErrorMessage(error)
       result.status = axios.isAxiosError(error) ? (error as AxiosError).status : 500
-    } 
+    }
 
     return result
   }
@@ -158,7 +160,7 @@ export class ApiClientUtils {
     status?: number[],
   }): Promise<IApiClientResult<ApiResponseDeleteData>> {
     const result: IApiClientResult<ApiResponseDeleteData> = {}
-    
+
     try {
       const response = await (args.axios || axios).delete(`${args.apiUrl}/${args.key}`, args.config)
 
@@ -173,7 +175,7 @@ export class ApiClientUtils {
       result.success = false
       result.msg = ApiClientUtils.getErrorMessage(error)
       result.status = axios.isAxiosError(error) ? (error as AxiosError).status : 500
-    } 
+    }
 
     return result
   }
