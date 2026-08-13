@@ -1,89 +1,88 @@
-// import CryptoJS from "crypto-js";
 import moment from 'moment';
-// import { v4 as uuid } from 'uuid';
 import {
   ApiRequestDeleteOptions, ApiRequestGetOptions, ApiRequestPostOptions, ApiRequestPutOptions, ApiResponseDeleteData,
   ApiResponseGetData, ApiResponseGetListData, ApiResponsePostData, ApiResponsePutData,
 } from './api';
 import { Where } from './api/query';
-// import { Where as WhereV2, ComparisonOperators, FieldCondition, LogicalOperators } from './api/queryv2'
-// import { Nested, NestedConfig, NestedNode, NestedQuery, buildNestedString, buildQueryParams } from './api/nested'
 import { ApiClientGetOptions, ApiClientUtils, BaseApiClient, IApiClientResult } from "./apiClient";
 import { PeriodOptionsNames, periodOptions } from './dateTime';
 
 export {
   ApiClientGetOptions, ApiClientUtils, ApiRequestDeleteOptions, ApiRequestGetOptions, ApiRequestPostOptions, ApiRequestPutOptions, ApiResponseDeleteData,
   ApiResponseGetData, ApiResponseGetListData, ApiResponsePostData, ApiResponsePutData, BaseApiClient, IApiClientResult,
-  PeriodOptionsNames, Where, periodOptions, 
-  // WhereV2, ComparisonOperators, FieldCondition, LogicalOperators,
-  // Nested, NestedConfig, NestedNode, NestedQuery, buildNestedString, buildQueryParams
+  PeriodOptionsNames, Where, periodOptions
 };
 
 export const showDebugLog = false
 
-// LAYOUT
-const screenResolutionFactor: number = 0;
+// MISCELANEOUS
 
-export class ScreenResolutions {
-  static xs = 600 - screenResolutionFactor;
-  static sm = 960 - screenResolutionFactor;
-  static md = 1280 - screenResolutionFactor;
-  static lg = 1920 - screenResolutionFactor;
-  static xl = 1921 - screenResolutionFactor;
+export type Primitive =
+  | string
+  | number
+  | boolean
+  | bigint
+  | symbol
+  | null
+  | undefined
+  | Date
+  | Function
 
-  static getCurrent = (): ScreenResolutions => {
-    let width = window.innerHeight;
-    return width <= ScreenResolutions.xs
-      ? ScreenResolutions.xs
-      : width > ScreenResolutions.xs && width <= ScreenResolutions.sm
-        ? ScreenResolutions.sm
-        : width > ScreenResolutions.sm && width <= ScreenResolutions.md
-          ? ScreenResolutions.md
-          : width > ScreenResolutions.md && width <= ScreenResolutions.lg
-            ? ScreenResolutions.lg
-            : ScreenResolutions.xl;
-  }
-}
+// NestedKeys BEGIN...
+
+// ANTIGO, NAO SEI ONDE TA USANDO
+/**
+   * @deprecated
+   */
+export type NestedKeyOf<T> = {
+  [K in keyof T & string]: T[K] extends Primitive
+  ? K
+  : K | `${K}.${NestedKeyOf<T[K]>}`
+}[keyof T & string]
+
+// MAIS NOVO MAS COM PROBLEMAS CORRIGIDOS POR NestedKeysDepth
+// https://share.gemini.google/1LyLPY889iLZ
+
+/**
+   * @deprecated
+   */
+// export type NestedKeysOld<T> = {
+//   [K in keyof T & (string | number)]: NonNullable<T[K]> extends object
+//   ? `${K}` | `${K}.${NestedKeysOld<NonNullable<T[K]>>}`
+//   : `${K}`;
+// }[keyof T & (string | number)];
+
+// 1. O tipo object captura tipos especiais (como Date, Array, Function)
+// Se o modelo (type ou interface) contiverem tipos como Date, Array ou funções, a verificação NonNullable<T[K]> 
+// extends object vai considerar esses tipos como objetos e tentará buscar propriedades recursivas deles (ex: "created_at.getTime", "items.length"), 
+// estourando o limite de recursão do TypeScript ou gerando um tipo never.
+// Para corrigir isso, precisamos excluir tipos que herdam de object mas não devem ter sub-chaves navegáveis:
+// Tipo utilitário recursivo para extrair caminhos aninhados
+// Tipo utilitário recursivo com limite de profundidade (Depth)
+// 
+// 2. O modelo pode ter referências circulares
+// Se o modelo tiver um campo que aponta de volta para o proprio modelo (ou outro relacionamento circular), 
+// a recursão do TypeScript entra em loop infinito e o compilador "desiste" silenciosamente de calcular o autocomplete para evitar travar a IDE.
+// Para resolver o problema da recursão infinita e garantir performance, você deve limitar a profundidade da recursão (por exemplo, até 3 ou 4 níveis):
+export type NestedKeys<
+  T,
+  MaxDepth extends number = 3,
+  CurrentDepth extends number[] = []
+> = CurrentDepth['length'] extends MaxDepth
+  ? never
+  : {
+    [K in keyof T & (string | number)]: NonNullable<T[K]> extends Date | Array<any> | Function
+    ? `${K}`
+    : NonNullable<T[K]> extends object
+    ? `${K}` | `${K}.${NestedKeys<NonNullable<T[K]>, MaxDepth, [...CurrentDepth, 1]>}`
+    : `${K}`;
+  }[keyof T & (string | number)];
+// ...END
+
+export const lang = (navigator.language || navigator.languages[0] || 'pt-BR').toLowerCase(); // ex: 'pt-br'
 
 // WEB
 export class WebUtils {
-  static setCookie(cname: string, cvalue: string, exdays: number) {
-    let d = new Date();
-    d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
-    let expires = "expires=" + d.toUTCString();
-    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
-  }
-
-  static getCookie(cname: string) {
-    let name = cname + "=";
-    let decodedCookie = decodeURIComponent(document.cookie);
-    let ca = decodedCookie.split(';');
-    for (let i = 0; i < ca.length; i++) {
-      let c = ca[i];
-      while (c.charAt(0) === ' ') {
-        c = c.substring(1);
-      }
-      if (c.indexOf(name) === 0) {
-        return c.substring(name.length, c.length);
-      }
-    }
-    return null;
-  }
-
-  static deleteCookie(cname: string) {
-    let d = new Date();
-    d.setTime(d.getTime() - (24 * 60 * 60 * 1000)); // Define a data de expiração para um dia atrás
-    let expires = "expires=" + d.toUTCString();
-    document.cookie = cname + "=;" + expires + ";path=/";
-  }
-
-  static getCookieObj<T extends object>(cname: string): T | undefined {
-    const resultStr = WebUtils.getCookie(cname)
-    if (resultStr)
-      return JSON.parse(resultStr) as T
-    return undefined
-  }
-
   static getUrlParams(url: string): { [key: string]: string } {
     const params: { [key: string]: string } = {};
     const urlParts = url.split('?');
@@ -138,6 +137,18 @@ export class StringUtils {
   // handling error
   static jsonDecode = (str: string) =>
     (_ => { try { return JSON.parse(str); } catch (err) { return undefined; } })()
+
+  static regExpCheck = (
+    value: string,
+    regexPattern: string,
+    flags?: string
+  ): boolean => {
+    try {
+      return new RegExp(regexPattern, flags).test(value);
+    } catch {
+      return false;
+    }
+  };
 }
 
 // COLORS
@@ -432,6 +443,19 @@ export class CommonUtils {
 
   static isValidEmail(email: string) {
     return email.indexOf('@') !== -1 && email.indexOf('.') !== -1
+  }
+
+  static localeCompareObjField<T>(x: T, y: T, field: NestedKeyOf<T>): number {
+    if (field.includes('.')) {
+      const fields = field.split('.')
+      const newX = (x as any)[fields[0]]
+      const newY = (y as any)[fields[0]]
+      fields.splice(0, 1)
+
+      return CommonUtils.localeCompareObjField(newX, newY, fields.join('.'))
+    }
+
+    return String((x as any)[field])?.localeCompare(String((y as any)[field]), lang)
   }
 
   /**
