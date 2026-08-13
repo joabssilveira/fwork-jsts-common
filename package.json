@@ -42,12 +42,12 @@
 		"trailingComma": "es5"
 	},
 	"scripts": {
-    "build": "tsc --project tsconfig.cjs.json && tsc --project tsconfig.esm.json",
-    "prepare": "husky",
-    "release": "standard-version",
-    "pub": "npm run build && npm run release && git push --follow-tags origin main && npm publish"
-  },
-	"version": "2.0.17",
+		"build": "tsc --project tsconfig.cjs.json && tsc --project tsconfig.esm.json",
+		"prepare": "husky",
+		"release": "standard-version",
+		"pub": "npm run build && npm run release && git push --follow-tags origin main && npm publish"
+	},
+	"version": "2.0.18",
 	"exports": {
 		".": {
 			"types": "./dist/types/index.d.ts",
