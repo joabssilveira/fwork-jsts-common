@@ -17,6 +17,8 @@ export const showDebugLog = false
 
 // MISCELANEOUS
 
+export type StrictOmit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
+
 export type Primitive =
   | string
   | number
@@ -43,9 +45,6 @@ export type NestedKeyOf<T> = {
 // MAIS NOVO MAS COM PROBLEMAS CORRIGIDOS POR NestedKeysDepth
 // https://share.gemini.google/1LyLPY889iLZ
 
-/**
-   * @deprecated
-   */
 // export type NestedKeysOld<T> = {
 //   [K in keyof T & (string | number)]: NonNullable<T[K]> extends object
 //   ? `${K}` | `${K}.${NestedKeysOld<NonNullable<T[K]>>}`
@@ -78,8 +77,6 @@ export type NestedKeys<
     : `${K}`;
   }[keyof T & (string | number)];
 // ...END
-
-export const lang = (navigator.language || navigator.languages[0] || 'pt-BR').toLowerCase(); // ex: 'pt-br'
 
 // WEB
 export class WebUtils {
@@ -330,58 +327,6 @@ export class ArrayUtils {
   static differ = (arrayA: any[] | undefined, arrayB: any[] | undefined) => arrayA?.filter(elem => !arrayB?.includes(elem))
 }
 
-// CRYPT
-/**
-   * @deprecated
-   */
-// export class CryptUtils {
-//   // NUNCA MUDAR ESSE VALOR
-//   /**
-//    * @deprecated
-//    */
-//   // static secretKey = 'dd6924666ccf03064b22806cfee495c2'
-
-//   /**
-//    * @deprecated 
-//    */
-//   // static crypt(text: string) {
-//   //   const encrypt = CryptoJS.AES.encrypt(text, CryptUtils.secretKey).toString()
-//   //   return encrypt
-//   // }
-
-//   /**
-//    * @deprecated 
-//    */
-//   // static decrypt = (text: string) => {
-//   //   const bytes = CryptoJS.AES.decrypt(text, CryptUtils.secretKey)
-//   //   const decrypt = bytes.toString(CryptoJS.enc.Utf8)
-//   //   return decrypt
-//   // }
-
-//   /**
-//    * @deprecated 
-//    */
-//   // static cryptMD5(text: string) {
-//   //   // var hash = MD5.generate(CryptUtils.secretKey + text);
-//   //   var hash = CryptoJS.MD5(CryptUtils.secretKey + text).toString()
-//   //   return hash
-//   // }
-
-//   /**
-//    * @deprecated
-//    */
-//   // static parseJwt(token: any) {
-//   //   if (token) {
-//   //     var a = token.split('.')
-//   //     if (a.length >= 2) {
-//   //       var base64Payload = a[1];
-//   //       var payload = Buffer.from(base64Payload, 'base64');
-//   //       return JSON.parse(payload.toString());
-//   //     }
-//   //   }
-//   // }
-// }
-
 // LOCALE
 export class LocaleUtils {
   static localeCurrencyMap: Record<string, string> = {
@@ -422,6 +367,9 @@ export class CommonUtils {
       (some || '').toString().trim() === ''
   }
 
+  /**
+   * @deprecated
+   */
   static isValidCPF(cpf: string) {
     cpf = cpf.replace(/[^\d]+/g, '')
 
@@ -437,75 +385,32 @@ export class CommonUtils {
     return rest(10) === validateCPF[9] && rest(11) === validateCPF[10]
   }
 
+  /**
+   * @deprecated
+   */
   static isValidPhone(phone: string) {
     return StringUtils.onlyNumbers(phone).length == 10 || StringUtils.onlyNumbers(phone).length == 11
   }
 
+  /**
+   * @deprecated
+   */
   static isValidEmail(email: string) {
     return email.indexOf('@') !== -1 && email.indexOf('.') !== -1
   }
 
-  static localeCompareObjField<T>(x: T, y: T, field: NestedKeyOf<T>): number {
+  static localeCompareObjField<T>(x: T, y: T, field: NestedKeys<T>, lang: string): number {
     if (field.includes('.')) {
       const fields = field.split('.')
       const newX = (x as any)[fields[0]]
       const newY = (y as any)[fields[0]]
       fields.splice(0, 1)
 
-      return CommonUtils.localeCompareObjField(newX, newY, fields.join('.'))
+      return CommonUtils.localeCompareObjField(newX, newY, fields.join('.'), lang)
     }
 
     return String((x as any)[field])?.localeCompare(String((y as any)[field]), lang)
   }
-
-  /**
-   * @deprecated
-   */
-  // static getNewUuid() {
-  //   return uuid()
-  // }
-
-  /**
-   * @deprecated
-   */
-  // static uuidv7() {
-  //   const UNIX_TS_MS_BITS = 48;
-  //   const VER_DIGIT = "7";
-  //   const SEQ_BITS = 12;
-  //   const VAR = 0b10;
-  //   const VAR_BITS = 2;
-  //   const RAND_BITS = 62;
-
-  //   let prevTimestamp = -1;
-  //   let seq = 0;
-
-  //   const timestamp = Math.max(Date.now(), prevTimestamp);
-  //   seq = timestamp === prevTimestamp ? seq + 1 : 0;
-  //   prevTimestamp = timestamp;
-
-  //   const var_rand = new Uint32Array(2);
-  //   crypto.getRandomValues(var_rand);
-  //   var_rand[0] = (VAR << (32 - VAR_BITS)) | (var_rand[0] >>> VAR_BITS);
-
-  //   const digits =
-  //     timestamp.toString(16).padStart(UNIX_TS_MS_BITS / 4, "0") +
-  //     VER_DIGIT +
-  //     seq.toString(16).padStart(SEQ_BITS / 4, "0") +
-  //     var_rand[0].toString(16).padStart((VAR_BITS + RAND_BITS) / 2 / 4, "0") +
-  //     var_rand[1].toString(16).padStart((VAR_BITS + RAND_BITS) / 2 / 4, "0");
-
-  //   return (
-  //     digits.slice(0, 8) +
-  //     "-" +
-  //     digits.slice(8, 12) +
-  //     "-" +
-  //     digits.slice(12, 16) +
-  //     "-" +
-  //     digits.slice(16, 20) +
-  //     "-" +
-  //     digits.slice(20)
-  //   );
-  // }
 
   static isObject(value: any): value is { [key: string]: any } {
     return value && typeof value === 'object' && !Array.isArray(value) && !(value instanceof Date);
