@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.1.0](https://github.com/joabssilveira/fwork-jsts-common/compare/v2.0.22...v2.1.0) (2026-09-25)
+
+
+### Features
+
+* toSnake ([6bd0bcc](https://github.com/joabssilveira/fwork-jsts-common/commit/6bd0bcc207a090b4dd17ec6af0ef0498d52005e7))
+
 ### [2.0.22](https://github.com/joabssilveira/fwork-jsts-common/compare/v2.0.21...v2.0.22) (2026-09-21)
 
 ### [2.0.21](https://github.com/joabssilveira/fwork-jsts-common/compare/v2.0.20...v2.0.21) (2026-09-08)
