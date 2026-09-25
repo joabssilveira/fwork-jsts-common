@@ -102,6 +102,21 @@ export class WebUtils {
 
 // STRINGS
 export class StringUtils {
+  static toSnakeCase(value: string): string {
+    return value
+      // CamelCase / acrônimos
+      .replace(/([A-Z]+)([A-Z][a-z])/g, '$1_$2')
+      .replace(/([a-z\d])([A-Z])/g, '$1_$2')
+
+      // Hífen, espaço e underscore viram separador
+      .replace(/[-\s_]+/g, '_')
+
+      // Remove underscores nas extremidades
+      .replace(/^_+|_+$/g, '')
+
+      .toLowerCase()
+  }
+
   static getInitLetters = (text: string, onlyFirstAndLast?: boolean) => text.indexOf(' ') !== -1 ? text.split(' ').reduce((a, b, index) => {
     let r = String(`${index === 1 ? a[0] : a}${b[0]}`)
     if (onlyFirstAndLast)
