@@ -32,6 +32,8 @@ export class ApiClientUtils {
       // axios
       ((error as AxiosError).response?.data as any)?.message ??
       (typeof (error as AxiosError).response?.data == 'string' ? (error as AxiosError).response?.data : null) ??
+      // os erros em go vem com a mensagem dentro de uma prop "error"
+      (typeof ((error as AxiosError).response?.data as any)?.error == 'string' ? ((error as AxiosError).response?.data as any).error : null) ??
       (error as AxiosError).message ??
       // custom
       (error as any)?.data?.message ??
